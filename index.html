@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapid Test Inquiry Form</title>
-    <!-- Favicon -->
+    <title>Rapid Exam Form</title>
+    
+    <!-- Favicon Integration -->
     <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/dyborse25/Rapidtest/main/photo_2025-12-27_15-22-23.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -102,6 +103,22 @@
             60% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
         }
+
+        /* Logo Styling */
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 p-4 font-sans text-white">
@@ -112,8 +129,11 @@
         <div class="absolute top-[-50px] left-[-50px] w-32 h-32 bg-pink-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-pulse"></div>
         <div class="absolute bottom-[-50px] right-[-50px] w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-pulse" style="animation-delay: 1s;"></div>
 
-        <!-- Form Header -->
+        <!-- Form Header with Logo -->
         <div class="text-center mb-8 relative z-10">
+            <div class="logo-container">
+                <img src="https://raw.githubusercontent.com/dyborse25/Rapidtest/main/photo_2025-12-27_15-22-23.jpg" alt="Rapid Exam Logo">
+            </div>
             <h2 class="text-3xl font-bold mb-2 tracking-wide">Rapid Exam</h2>
             <p class="text-white/70">Paste your article content below.</p>
         </div>
@@ -124,7 +144,7 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <h3 class="text-2xl font-bold mb-2">Submission Received!</h3>
-            <p class="text-white/70 mb-6">Your data has been sent to the webhook successfully.</p>
+            <p class="text-white/70 mb-6">Your content has been sent to n8n successfully.</p>
             <button onclick="resetForm()" class="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full transition-all">
                 Send Another
             </button>
@@ -142,7 +162,7 @@
 
             <!-- Submit Button -->
             <button type="submit" id="submitBtn" class="w-full py-4 bg-gradient-to-r from-pink-500 to-violet-600 rounded-xl font-bold text-lg shadow-lg transform transition hover:scale-[1.02] hover:shadow-purple-500/50 flex items-center justify-center gap-2 group">
-                <span id="btnText">Submit Request</span>
+                <span id="btnText">Done</span>
                 <i class="fas fa-paper-plane group-hover:translate-x-1 transition-transform" id="btnIcon"></i>
                 <div class="spinner" id="btnSpinner"></div>
             </button>
@@ -160,7 +180,8 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = "https://n8n.srv1234891.hstgr.cloud/webhook-test/rapid-test";
+        const WEBHOOK_URL = "https://n8n.srv1234891.hstgr.cloud/webhook/rapid-test";
+        
         const form = document.getElementById('webhookForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
@@ -213,7 +234,7 @@
             } else {
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-                btnText.textContent = 'Submit Request';
+                btnText.textContent = 'Done';
                 btnIcon.classList.remove('hidden');
                 btnSpinner.style.display = 'none';
             }
@@ -223,7 +244,6 @@
             form.classList.add('hidden');
             successMessage.classList.remove('hidden');
             successMessage.classList.add('flex');
-            
             const checkmark = successMessage.querySelector('.success-checkmark');
             checkmark.style.display = 'block';
         }
