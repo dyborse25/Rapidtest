@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapid Test Inquiry Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Glassmorphism & Animations */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.3s ease;
+        }
+
+        .input-field:focus + .input-icon {
+            color: white;
+        }
+
+        .input-label {
+            position: absolute;
+            left: 3rem;
+            top: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus ~ .input-label,
+        .input-field:not(:placeholder-shown) ~ .input-label {
+            top: -0.6rem;
+            left: 0.5rem;
+            font-size: 0.75rem;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0 0.5rem;
+            border-radius: 4px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            display: none;
+            color: #4ade80;
+            font-size: 3rem;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 p-4 font-sans text-white">
+
+    <div class="glass w-full max-w-lg p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+        
+        <!-- Background Decoration -->
+        <div class="absolute top-[-50px] left-[-50px] w-32 h-32 bg-pink-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-pulse"></div>
+        <div class="absolute bottom-[-50px] right-[-50px] w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-pulse" style="animation-delay: 1s;"></div>
+
+        <!-- Form Header -->
+        <div class="text-center mb-8 relative z-10">
+            <h2 class="text-3xl font-bold mb-2 tracking-wide">Rapid Exam</h2>
+            <p class="text-white/70">Paste your article content below.</p>
+        </div>
+
+        <!-- Success Message Container -->
+        <div id="successMessage" class="hidden flex-col items-center justify-center text-center py-10">
+            <div class="success-checkmark mb-4 block">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Submission Received!</h3>
+            <p class="text-white/70 mb-6">Your data has been sent to the webhook successfully.</p>
+            <button onclick="resetForm()" class="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full transition-all">
+                Send Another
+            </button>
+        </div>
+
+        <!-- The Form -->
+        <form id="webhookForm" class="relative z-10 space-y-2">
+            
+            <!-- Insert Content Field -->
+            <div class="input-group">
+                <textarea id="content" name="content" class="input-field" rows="10" placeholder=" " style="resize: none;" required></textarea>
+                <i class="fas fa-align-left input-icon" style="top: 1.5rem; transform: none;"></i>
+                <label for="content" class="input-label">Insert Content</label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="w-full py-4 bg-gradient-to-r from-pink-500 to-violet-600 rounded-xl font-bold text-lg shadow-lg transform transition hover:scale-[1.02] hover:shadow-purple-500/50 flex items-center justify-center gap-2 group">
+                <span id="btnText">Submit Request</span>
+                <i class="fas fa-paper-plane group-hover:translate-x-1 transition-transform" id="btnIcon"></i>
+                <div class="spinner" id="btnSpinner"></div>
+            </button>
+
+            <!-- Error Message -->
+            <p id="errorMessage" class="text-red-300 text-sm text-center mt-4 hidden">
+                <i class="fas fa-exclamation-circle mr-1"></i> Failed to send. Please try again.
+            </p>
+
+        </form>
+
+        <div class="mt-6 text-center text-xs text-white/40">
+            Powered by n8n Webhook Integration
+        </div>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = "https://n8n.srv1234891.hstgr.cloud/webhook-test/rapid-test";
+        const form = document.getElementById('webhookForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 1. Loading State
+            setLoading(true);
+            errorMessage.classList.add('hidden');
+
+            // 2. Gather Data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Add timestamp
+            data.submittedAt = new Date().toISOString();
+
+            try {
+                // 3. Send to Webhook
+                // Note: 'no-cors' mode is used here to prevent browser blocking if the webhook 
+                // doesn't return the correct Access-Control-Allow-Origin headers. 
+                // However, with 'no-cors', we can't read the response status/body.
+                // If your n8n allows CORS, remove { mode: 'no-cors' }.
+                
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // Since n8n webhooks often return 200 OK text, we assume success if no network error thrown.
+                // If you need strict validation, ensure your n8n workflow returns JSON and remove 'no-cors' logic comments.
+                
+                if (response.ok) {
+                    showSuccess();
+                } else {
+                    throw new Error('Server responded with an error');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // Fallback: Sometimes fetch fails due to strict CORS but the data actually reached n8n.
+                // You can uncomment the line below to show success anyway if you trust the backend.
+                // showSuccess(); 
+                
+                errorMessage.classList.remove('hidden');
+                errorMessage.textContent = "Error: " + error.message;
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+                btnText.textContent = 'Sending...';
+                btnIcon.classList.add('hidden');
+                btnSpinner.style.display = 'block';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                btnText.textContent = 'Submit Request';
+                btnIcon.classList.remove('hidden');
+                btnSpinner.style.display = 'none';
+            }
+        }
+
+        function showSuccess() {
+            form.classList.add('hidden');
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('flex');
+            
+            // Trigger animation
+            const checkmark = successMessage.querySelector('.success-checkmark');
+            checkmark.style.display = 'block';
+        }
+
+        function resetForm() {
+            form.reset();
+            form.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+            successMessage.classList.remove('flex');
+            errorMessage.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
