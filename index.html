@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rapid Test Inquiry Form</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/dyborse25/Rapidtest/main/photo_2025-12-27_15-22-23.jpg">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -169,24 +172,14 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // 1. Loading State
             setLoading(true);
             errorMessage.classList.add('hidden');
 
-            // 2. Gather Data
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
-            
-            // Add timestamp
             data.submittedAt = new Date().toISOString();
 
             try {
-                // 3. Send to Webhook
-                // Note: 'no-cors' mode is used here to prevent browser blocking if the webhook 
-                // doesn't return the correct Access-Control-Allow-Origin headers. 
-                // However, with 'no-cors', we can't read the response status/body.
-                // If your n8n allows CORS, remove { mode: 'no-cors' }.
-                
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: {
@@ -195,9 +188,6 @@
                     body: JSON.stringify(data)
                 });
 
-                // Since n8n webhooks often return 200 OK text, we assume success if no network error thrown.
-                // If you need strict validation, ensure your n8n workflow returns JSON and remove 'no-cors' logic comments.
-                
                 if (response.ok) {
                     showSuccess();
                 } else {
@@ -206,11 +196,6 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                
-                // Fallback: Sometimes fetch fails due to strict CORS but the data actually reached n8n.
-                // You can uncomment the line below to show success anyway if you trust the backend.
-                // showSuccess(); 
-                
                 errorMessage.classList.remove('hidden');
                 errorMessage.textContent = "Error: " + error.message;
             } finally {
@@ -239,7 +224,6 @@
             successMessage.classList.remove('hidden');
             successMessage.classList.add('flex');
             
-            // Trigger animation
             const checkmark = successMessage.querySelector('.success-checkmark');
             checkmark.style.display = 'block';
         }
